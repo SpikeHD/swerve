@@ -64,7 +64,8 @@ jobs:
           cargo build
             --release 
             --target ${{ matrix.config.target }}
-            ${{ (matrix.config.platform == 'ubuntu-latest' && matrix.config.target != 'x86_64-unknown-linux-gnu') && '-C --linker=arm-linux-gnueabihf-gcc' || '' }}
+        env:
+          RUSTFLAGS: ${{ (matrix.config.platform == 'ubuntu-latest' && matrix.config.target != 'x86_64-unknown-linux-gnu') && '-C --linker=arm-linux-gnueabihf-gcc' || '' }}
 
       - name: Upload
         uses: actions/upload-artifact@v2
