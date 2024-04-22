@@ -73,14 +73,14 @@ jobs:
         run: cargo build --release --target ${{ matrix.config.target }}
 
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: swerve-${{ runner.os }}-${{ matrix.config.target }}
           path: target/${{ matrix.config.target }}/release/swerve
 
       - name: Upload (Windows)
         if: matrix.config.platform == 'windows-latest'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: swerve-${{ runner.os }}-${{ matrix.config.target }}
           path: target/${{ matrix.config.target }}/release/swerve.exe
