@@ -73,6 +73,7 @@ jobs:
         run: cargo build --release --target ${{ matrix.config.target }}
 
       - name: Upload
+        if: matrix.config.platform != 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: swerve-${{ runner.os }}-${{ matrix.config.target }}
