@@ -20,13 +20,28 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.config.platform }}
 
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, ubuntu-20.04, macos-latest]
+        config:
+          - platform: ubuntu-latest
+            target: 'x86_64-unknown-linux-gnu'
+          - platform: ubuntu-latest
+            target: 'aarch64-unknown-linux-gnu'
+          - platform: ubuntu-latest
+            target: 'armv7-unknown-linux-gnueabihf'
 
+          - platform: macos-latest
+            target: 'x86_64-apple-darwin'
+          - platform: macos-latest
+            target: 'aarch64-apple-darwin'
+
+          - platform: windows-latest
+            target: 'x86_64-pc-windows-msvc'
+          - platform: windows-latest
+            target: 'aarch64-pc-windows-msvc'
     steps:
       - uses: actions-rust-lang/setup-rust-toolchain@v1.8
       - uses: actions/cache@v4
@@ -41,19 +56,21 @@ jobs:
 
       - uses: actions/checkout@v4
 
+      - name: Add targets
+        run: rustup target add ${{ matrix.config.target }}
+      
       - name: Build
-        run: cargo build --release
+        run: cargo build --release --target ${{ matrix.config.target }}
 
       - name: Upload
-        uses: actions/upload-artifact@v4
-        if: matrix.platform != 'windows-latest'
+        uses: actions/upload-artifact@v2
         with:
-          name: swerve-${{ matrix.platform }}
-          path: target/release/swerve
+          name: swerve-${{ runner.os }}-${{ matrix.config.target }}
+          path: target/${{ matrix.config.target }}/release/swerve
 
       - name: Upload (Windows)
-        uses: actions/upload-artifact@v4
-        if: matrix.platform == 'windows-latest'
+        if: matrix.config.platform == 'windows-latest'
+        uses: actions/upload-artifact@v2
         with:
-          name: swerve-${{ matrix.platform }}
-          path: target/release/swerve.exe
+          name: swerve-${{ runner.os }}-${{ matrix.config.target }}
+          path: target/${{ matrix.config.target }}/release/swerve.exe
