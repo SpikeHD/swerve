@@ -1,0 +1,40 @@
+name: Lint backend
+
+on:
+  push:
+    paths:
+      - '.github/workflows/check.yml'
+      - 'Cargo.toml'
+      - 'src/**/*'
+  pull_request:
+    paths:
+      - '.github/workflows/check.yml'
+      - 'Cargo.toml'
+      - 'src/**/*'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Cargo format
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --manifest-path ./Cargo.toml --all -- --check
+
+      - name: Cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --manifest-path ./Cargo.toml --all -- -D warnings
