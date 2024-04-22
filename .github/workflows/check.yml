@@ -5,11 +5,13 @@ on:
     paths:
       - '.github/workflows/check.yml'
       - 'Cargo.toml'
+      - 'rustfmt.toml'
       - 'src/**/*'
   pull_request:
     paths:
       - '.github/workflows/check.yml'
       - 'Cargo.toml'
+      - 'rustfmt.toml'
       - 'src/**/*'
 
 concurrency:
