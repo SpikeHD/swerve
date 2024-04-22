@@ -22,12 +22,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup rust
-        uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.8
         with:
-          toolchain: stable
-          override: true
+          components: rustfmt
 
       - name: Cargo format
         uses: actions-rs/cargo@v1
