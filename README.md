@@ -1,7 +1,17 @@
 <div align="center">
   <h1>Swerve</h1>
-
   <p>No-fuss serving of directories to localhost</p>
+</div>
+
+<div align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/SpikeHD/swerve/build.yml" />
+  <img src="https://img.shields.io/github/repo-size/SpikeHD/swerve" />
+  <img src="https://img.shields.io/github/commit-activity/m/SpikeHD/swerve" />
+</div>
+
+<div align="center">
+  <img src="https://img.shields.io/github/release-date/SpikeHD/swerve" />
+  <img src="https://img.shields.io/github/stars/SpikeHD/swerve" />
 </div>
 
 # Table of Contents
