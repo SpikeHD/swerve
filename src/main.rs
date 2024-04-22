@@ -19,12 +19,14 @@ struct Args {
 
 pub fn main() {
   let opts = Args::parse_args_default_or_exit();
-
-  log!("{:?}", opts);
-
   let port = opts.port;
   let server = Server::http(format!("127.0.0.1:{}", port)).unwrap();
   let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
+
+  // If the path is the current dir, warn just in case
+  if local_path == PathBuf::from(".") {
+    warn!("Serving current directory");
+  }
 
   log!("Listening on port {}", port);
   log!("Serving path: {:?}", local_path);
@@ -55,8 +57,10 @@ pub fn main() {
 
     // Suppress/handle error
     match response {
-      Ok(_) => {},
-      Err(e) => log!("Failed to serve {:?}: {:?}", path, e),
+      Ok(_) => {
+        success!("Reponse served for {:?}", path);
+      },
+      Err(e) => error!("Failed to serve {:?}: {:?}", path, e),
     }
   }
 }
