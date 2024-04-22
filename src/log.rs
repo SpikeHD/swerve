@@ -17,7 +17,7 @@ pub fn log(s: impl AsRef<str> + Display, kind: Option<LogKind>) {
     Some(LogKind::Error) => "ERROR".red(),
     None => "INFO".blue(),
   };
-  
+
   println!(
     "[{}] [{}] {}",
     Local::now().format("%Y-%m-%d %H:%M:%S"),

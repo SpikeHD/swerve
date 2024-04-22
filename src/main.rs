@@ -1,7 +1,7 @@
-use std::{path::PathBuf, str::FromStr};
-use tiny_http::{Header, Response, Server};
 use gumdrop::Options;
 use mime_guess::from_path;
+use std::{path::PathBuf, str::FromStr};
+use tiny_http::{Header, Response, Server};
 
 mod log;
 
@@ -30,14 +30,14 @@ pub fn main() {
 
   log!("Listening on port {}", port);
   log!("Serving path: {:?}", local_path);
-  
+
   for request in server.incoming_requests() {
     // Remove leading slash
-    let path = request.url().strip_prefix("/").unwrap_or(request.url());
+    let path = request.url().strip_prefix('/').unwrap_or(request.url());
     let path = local_path.join(PathBuf::from(path));
 
     log!("Incoming request for {:?}", path);
-    
+
     let response = match std::fs::read(&path) {
       Ok(content) => {
         let mime = from_path(&path).first_or_octet_stream();
@@ -45,13 +45,14 @@ pub fn main() {
 
         // Headers
         let content_type = Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
-        let content_length = Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
+        let content_length =
+          Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
 
         response.add_header(content_type);
         response.add_header(content_length);
 
         request.respond(response)
-      },
+      }
       Err(_) => request.respond(Response::empty(404)),
     };
 
@@ -59,7 +60,7 @@ pub fn main() {
     match response {
       Ok(_) => {
         success!("Reponse served for {:?}", path);
-      },
+      }
       Err(e) => error!("Failed to serve {:?}: {:?}", path, e),
     }
   }
