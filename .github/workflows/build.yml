@@ -60,7 +60,11 @@ jobs:
         run: rustup target add ${{ matrix.config.target }}
       
       - name: Build
-        run: cargo build --release --target ${{ matrix.config.target }}
+        run: -|
+          cargo build
+            --release 
+            --target ${{ matrix.config.target }}
+            ${{ matrix.config.target != 'x86_64-unknown-linux-gnu' && '-C --linker=arm-linux-gnueabihf-gcc' || '' }}
 
       - name: Upload
         uses: actions/upload-artifact@v2
