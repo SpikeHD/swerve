@@ -34,9 +34,9 @@ pub fn main() {
     let path = request.url().strip_prefix("/").unwrap_or(request.url());
     let path = local_path.join(PathBuf::from(path));
 
-    log!("Request for {:?}", path);
+    log!("Incoming request for {:?}", path);
     
-    match std::fs::read(&path) {
+    let response = match std::fs::read(&path) {
       Ok(content) => {
         let mime = from_path(&path).first_or_octet_stream();
         let mut response = Response::from_data(content.clone());
@@ -47,10 +47,16 @@ pub fn main() {
 
         response.add_header(content_type);
         response.add_header(content_length);
-        
+
         request.respond(response)
       },
       Err(_) => request.respond(Response::empty(404)),
-    }.expect("Failed to respond to request");
+    };
+
+    // Suppress/handle error
+    match response {
+      Ok(_) => {},
+      Err(e) => log!("Failed to serve {:?}: {:?}", path, e),
+    }
   }
 }
