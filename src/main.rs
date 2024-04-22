@@ -1,24 +1,56 @@
-use tide;
-use async_std::task::block_on;
+use std::{path::PathBuf, str::FromStr};
+use tiny_http::{Header, Response, Server};
+use gumdrop::Options;
+use mime_guess::from_path;
+
+mod log;
+
+#[derive(Debug, Options)]
+struct Args {
+  #[options(help = "Print help")]
+  help: bool,
+
+  #[options(free)]
+  path: Option<std::path::PathBuf>,
+
+  #[options(help = "Port to listen on", default = "8080")]
+  port: u16,
+}
 
 pub fn main() {
-  let mut app = tide::new();
-  let path = if let Some(arg) = std::env::args().nth(1) {
-    std::path::PathBuf::from(arg)
-  } else {
-    std::env::current_dir().expect("Could not get current directory")
-  };
+  let opts = Args::parse_args_default_or_exit();
 
-  // Serve anything in the current directory
-  app.at("/").serve_dir(&path).expect("Could not serve directory");
+  log!("{:?}", opts);
 
-  // Also serve the index.html at root if it exists
-  let index = path.join("index.html");
-  if index.exists() {
-    app.at("/").serve_file(index).expect("Could not serve index.html");
+  let port = opts.port;
+  let server = Server::http(format!("127.0.0.1:{}", port)).unwrap();
+  let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
+
+  log!("Listening on port {}", port);
+  log!("Serving path: {:?}", local_path);
+  
+  for request in server.incoming_requests() {
+    // Remove leading slash
+    let path = request.url().strip_prefix("/").unwrap_or(request.url());
+    let path = local_path.join(PathBuf::from(path));
+
+    log!("Request for {:?}", path);
+    
+    match std::fs::read(&path) {
+      Ok(content) => {
+        let mime = from_path(&path).first_or_octet_stream();
+        let mut response = Response::from_data(content.clone());
+
+        // Headers
+        let content_type = Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
+        let content_length = Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
+
+        response.add_header(content_type);
+        response.add_header(content_length);
+        
+        request.respond(response)
+      },
+      Err(_) => request.respond(Response::empty(404)),
+    }.expect("Failed to respond to request");
   }
-
-  println!("Serving {:?} on http://127.0.0.1:8080", path);
-
-  block_on(app.listen("127.0.0.1:8080")).expect("Could not start server");
 }
