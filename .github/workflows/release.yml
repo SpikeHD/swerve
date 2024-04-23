@@ -20,4 +20,4 @@ jobs:
         
       # DEBUG: List the contents of the downloaded artifacts
       - name: List artifacts
-        run: ls -l etc/usr/artifacts
+        run: ls -l /etc/usr/artifacts
