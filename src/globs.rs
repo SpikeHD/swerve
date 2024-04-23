@@ -1,6 +1,5 @@
-use glob;
-use std::sync::Mutex;
 use once_cell::sync::Lazy;
+use std::sync::Mutex;
 
 use crate::log;
 
@@ -12,7 +11,8 @@ pub fn set_includes(includes: Vec<String>) {
 
   for include in includes {
     log!("Including: {}", include);
-    let pattern = glob::Pattern::new(&include).expect(&format!("Invalid include glob pattern: {}", include));
+    let pattern = glob::Pattern::new(&include)
+      .unwrap_or_else(|_| panic!("Invalid include glob pattern: {}", include));
     patterns.push(pattern);
   }
 
@@ -25,7 +25,8 @@ pub fn set_excludes(excludes: Vec<String>) {
 
   for exclude in excludes {
     log!("Excluding: {}", exclude);
-    let pattern = glob::Pattern::new(&exclude).expect(&format!("Invalid exclude glob pattern: {}", exclude));
+    let pattern = glob::Pattern::new(&exclude)
+      .unwrap_or_else(|_| panic!("Invalid exclude glob pattern: {}", exclude));
     patterns.push(pattern);
   }
 

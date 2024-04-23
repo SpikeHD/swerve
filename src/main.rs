@@ -14,7 +14,7 @@ const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 struct Args {
   #[options(help = "Print help")]
   help: bool,
-  
+
   #[options(help = "Print version")]
   version: bool,
 
@@ -27,7 +27,10 @@ struct Args {
   #[options(help = "Port to listen on", default = "8080")]
   port: u16,
 
-  #[options(help = "Enable serving index.html or index.htm if path is /", default = "false")]
+  #[options(
+    help = "Enable serving index.html or index.htm if path is /",
+    default = "false"
+  )]
   root_index: bool,
 
   #[options(help = "List of glob patterns to include", meta = "GLOB")]
@@ -60,7 +63,10 @@ pub fn main() {
   globs::set_excludes(opts.exclude);
 
   log!("Serving path: {:?}", local_path);
-  log!("Access by visiting http://127.0.0.1:{} in your browser", port);
+  log!(
+    "Access by visiting http://127.0.0.1:{} in your browser",
+    port
+  );
 
   for request in server.incoming_requests() {
     let start = std::time::Instant::now();
@@ -86,7 +92,9 @@ pub fn main() {
     // See if the path is valid
     if !globs::path_is_valid(path.to_str().unwrap()) {
       log!("Path is invalid due to glob patterns");
-      request.respond(Response::empty(404)).expect("Failed to respond with 404");
+      request
+        .respond(Response::empty(404))
+        .expect("Failed to respond with 404");
       continue;
     }
 
