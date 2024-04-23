@@ -94,6 +94,12 @@ swerve path/to/directory
 
 # Specify port
 swerve -p 8080
+
+# Include files using a glob pattern
+swerve -i *.html -i *.css -i *.js
+
+# Exclude files using a glob pattern
+swerve -e *.txt -e *.md
 ```
 
 # Building
@@ -122,7 +128,7 @@ The binary will be in `target/release/`.
 
 # TODO
 
-* [ ] Include/exclude files/folders/globs
+* [x] Include/exclude files/folders/globs
 
 # Contributions
 
