@@ -20,8 +20,10 @@ jobs:
       
       # Download all artifacts from the build job
       - name: Download artifacts
-        uses: actions/download-artifact@v4
-        
-      # DEBUG: List the contents of the downloaded artifacts
-      - name: List artifacts
-        run: ls -l /etc/usr/artifacts
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: Build
+          path: artifacts
+
+      - name: DEBUG list artifacts
+        run: ls -la artifacts
