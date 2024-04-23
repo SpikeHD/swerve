@@ -9,6 +9,11 @@ edition = "2021"
 lto = true
 strip = "debuginfo"
 
+[profile.release.package."*"]
+# Optimize libs for size. This seems to have minimal (if any) performance impact
+# We do not optimize the top level binary this way because that *does* seem to have a slight performance impact
+opt-level = "z"
+
 [dependencies]
 chrono = { version = "0.4.38", default-features = false, features = ["clock"]}
 colored = "2.1.0"
