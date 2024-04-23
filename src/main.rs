@@ -38,6 +38,19 @@ pub fn main() {
 
     log!("Incoming request for {:?}", path);
 
+    // If the path is nothing (root), look for index.html or index.htm
+    let path = if path == PathBuf::from("./") {
+      log!("Looking for index.html or index.htm");
+      let idx_files = ["index.html", "index.htm"];
+      idx_files
+        .iter()
+        .map(|f| local_path.join(PathBuf::from(f)))
+        .find(|f| f.exists())
+        .unwrap_or(path)
+    } else {
+      path
+    };
+
     let response = match std::fs::read(&path) {
       Ok(content) => {
         let mime = from_path(&path).first_or_octet_stream();
