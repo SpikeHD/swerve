@@ -22,8 +22,10 @@ jobs:
       - name: Download artifacts
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: Build
+          workflow: build.yml
           path: artifacts
+          allow_forks: false
+          branch: main
 
       - name: DEBUG list artifacts
         run: ls -la artifacts
