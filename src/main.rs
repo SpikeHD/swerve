@@ -7,6 +7,8 @@ use crate::log::set_silent;
 
 mod log;
 
+const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
+
 #[derive(Debug, Options)]
 struct Args {
   #[options(help = "Print help")]
@@ -20,6 +22,9 @@ struct Args {
 
   #[options(help = "Port to listen on", default = "8080")]
   port: u16,
+
+  #[options(help = "Print version")]
+  version: bool,
 }
 
 pub fn main() {
@@ -27,6 +32,11 @@ pub fn main() {
   let port = opts.port;
   let server = Server::http(format!("127.0.0.1:{}", port)).unwrap();
   let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
+
+  if opts.version {
+    println!("swerve {}", VERSION.unwrap_or("unknown"));
+    return;
+  }
 
   set_silent(opts.quiet);
 
