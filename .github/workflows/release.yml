@@ -29,3 +29,6 @@ jobs:
 
       - name: DEBUG list artifacts
         run: ls -la artifacts
+
+      - name: DEBUG list files for windows
+        run: ls -la artifacts/swerve-x86_64-pc-windows-msvc
