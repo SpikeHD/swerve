@@ -5,6 +5,7 @@ use tiny_http::{Header, Response, Server};
 
 use crate::log::set_silent;
 
+mod globs;
 mod log;
 
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
@@ -27,7 +28,13 @@ struct Args {
   port: u16,
 
   #[options(help = "Enable serving index.html or index.htm if path is /", default = "false")]
-  index: bool,
+  root_index: bool,
+
+  #[options(help = "List of glob patterns to include", meta = "GLOB")]
+  include: Vec<String>,
+
+  #[options(help = "List of glob patterns to exclude", meta = "GLOB")]
+  exclude: Vec<String>,
 }
 
 pub fn main() {
@@ -48,6 +55,10 @@ pub fn main() {
     warn!("Serving current directory");
   }
 
+  // Set includes and excludes
+  globs::set_includes(opts.include);
+  globs::set_excludes(opts.exclude);
+
   log!("Serving path: {:?}", local_path);
   log!("Access by visiting http://127.0.0.1:{} in your browser", port);
 
@@ -60,7 +71,7 @@ pub fn main() {
     log!("Incoming request for {:?}", path);
 
     // If the path is nothing (root), look for index.html or index.htm
-    let path = if opts.index && path == PathBuf::from("./") {
+    let path = if opts.root_index && path == PathBuf::from("./") {
       log!("Looking for index.html or index.htm");
       let idx_files = ["index.html", "index.htm"];
       idx_files
@@ -71,6 +82,13 @@ pub fn main() {
     } else {
       path
     };
+
+    // See if the path is valid
+    if !globs::path_is_valid(path.to_str().unwrap()) {
+      log!("Path is invalid due to glob patterns");
+      request.respond(Response::empty(404)).expect("Failed to respond with 404");
+      continue;
+    }
 
     let response = match std::fs::read(&path) {
       Ok(content) => {
