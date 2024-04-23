@@ -108,7 +108,7 @@ pub fn main() {
 
     // If the path is a directory, serve the directory
     let response = if path.is_dir() && opts.serve_directories {
-      let html = html::get_directory_html(&path);
+      let html = html::get_directory_html(&local_path, request.url());
       let mut res = Response::from_string(html);
 
       res.add_header(Header::from_str("Content-Type: text/html").unwrap());

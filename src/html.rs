@@ -35,14 +35,27 @@ static HTML: &str = r#"
 </html>
 "#;
 
-pub fn get_directory_html(path: &Path) -> String {
+pub fn get_directory_html(root: &Path, path: &str) -> String {
+  let path = if path.starts_with("/") {
+    ".".to_owned() + path
+  } else {
+    path.to_string()
+  };
+  let path = path.as_str();
   let mut dirs = String::new();
   let mut files = String::new();
+  let full_path = root.join(path);
+  let pretty_path = &full_path.to_string_lossy().replace('\\', "/").replace("./", "");
+  let pretty_path = if pretty_path.is_empty() {
+    "/".to_string()
+  } else {
+    pretty_path.to_string()
+  };
 
-  for entry in path.read_dir().unwrap() {
+  for entry in full_path.read_dir().unwrap() {
     let entry = entry.unwrap();
     let name = entry.file_name().into_string().unwrap();
-    let mut path_as_str = path.to_string_lossy().replace('\\', "/").replace("./", "/");
+    let mut path_as_str = path.replace('\\', "/").replace("./", "/");
 
     if path_as_str == "/" {
       path_as_str = "".to_string();
@@ -58,7 +71,7 @@ pub fn get_directory_html(path: &Path) -> String {
   }
 
   let html = HTML
-    .replace("__DIRECTORY__", &path.to_string_lossy().replace('\\', "/"))
+    .replace("__DIRECTORY__", &pretty_path)
     .replace("__DIRS__", &dirs)
     .replace("__FILES__", &files);
 
