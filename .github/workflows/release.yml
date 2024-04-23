@@ -29,15 +29,24 @@ jobs:
 
       - name: Rename executables to their folder names
         run: |
-          for file in *; do
-            # Check if the file is a regular file
-            if [ -f "$file" ]; then
-              # Extract the parent directory name
-              parent_dir=$(basename "$(dirname "$file")")
-                  
-              # Rename the file
-              mv "$file" "$(dirname "$file")/$parent_dir$(basename "$file")"
-            fi
+          # get the folder name
+          folder_name=artifacts
+
+          # get the list of inner folders
+          folders=$(ls $folder_name)
+
+          # loop through the files in each folder
+          for folder in $folders
+          do
+              # get the list of files in the folder
+              files=$(ls $folder_name/$folder)
+              for file in $files
+              do
+                # retain the file extension (or none if no extension)
+                extension="${file##*.}"
+                # rename the file
+                mv $folder_name/$folder/$file $folder_name/$folder/$folder.$extension
+              done
           done
 
       - name: Create release using all artifacts
