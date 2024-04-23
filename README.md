@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Swerve</h1>
-  <p>No-fuss serving of directories to localhost</p>
+  <p>Speedy, no-fuss serving of directories on localhost.</p>
 </div>
 
 <div align="center">
