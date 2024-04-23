@@ -3,6 +3,8 @@ use mime_guess::from_path;
 use std::{path::PathBuf, str::FromStr};
 use tiny_http::{Header, Response, Server};
 
+use crate::log::set_silent;
+
 mod log;
 
 #[derive(Debug, Options)]
@@ -13,6 +15,9 @@ struct Args {
   #[options(free)]
   path: Option<std::path::PathBuf>,
 
+  #[options(help = "Disable logging")]
+  quiet: bool,
+
   #[options(help = "Port to listen on", default = "8080")]
   port: u16,
 }
@@ -22,6 +27,8 @@ pub fn main() {
   let port = opts.port;
   let server = Server::http(format!("127.0.0.1:{}", port)).unwrap();
   let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
+
+  set_silent(opts.quiet);
 
   // If the path is the current dir, warn just in case
   if local_path == PathBuf::from(".") {

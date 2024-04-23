@@ -1,6 +1,8 @@
 use chrono::Local;
 use colored::Colorize;
-use std::fmt::Display;
+use std::{fmt::Display, sync::atomic::AtomicBool};
+
+static SILENT: AtomicBool = AtomicBool::new(false);
 
 pub enum LogKind {
   Info,
@@ -9,7 +11,15 @@ pub enum LogKind {
   Error,
 }
 
+pub fn set_silent(silent: bool) {
+  SILENT.store(silent, std::sync::atomic::Ordering::Relaxed);
+}
+
 pub fn log(s: impl AsRef<str> + Display, kind: Option<LogKind>) {
+  if SILENT.load(std::sync::atomic::Ordering::Relaxed) {
+    return;
+  }
+
   let status = match kind {
     Some(LogKind::Info) => "INFO".blue(),
     Some(LogKind::Success) => "SUCCESS".green(),
