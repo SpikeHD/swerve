@@ -6,11 +6,10 @@ on:
     workflows: ["Build"]
     types:
       - completed
-    # tags:
-    #   - 'v*.*.*'
-    # TODO remove
-    branches:
-      - main
+  # Only run when tag is pushed
+  push:
+    tags:
+      - '*'
       
 jobs:
   release:

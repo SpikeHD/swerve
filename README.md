@@ -40,10 +40,10 @@ You can obtain binaries through [releases](https://github.com/SpikeHD/swerve/rel
 
 ```shell
 # x86/64
-iwr https://github.com/SpikeHD/swerve/releases/download/latest/swerve_win_x64.exe -OutFile swerve.exe
+iwr https://github.com/SpikeHD/swerve/releases/download/latest/swerve-x86_64-pc-windows-msvc.exe -OutFile swerve.exe
 
 # ARM64
-iwr https://github.com/SpikeHD/swerve/releases/download/latest/swerve_win_arm64.exe -OutFile swerve.exe
+iwr https://github.com/SpikeHD/swerve/releases/download/latest/swerve-aarch64-pc-windows-msvc.exe  -OutFile swerve.exe
 ```
 
 Then you can move it somewhere and add it to your PATH variable.
@@ -52,13 +52,13 @@ Then you can move it somewhere and add it to your PATH variable.
 
 ```shell
 # x86/64
-wget https://github.com/SpikeHD/swerve/releases/download/latest/swerve_linux_x64 -O swerve
+wget https://github.com/SpikeHD/swerve/releases/download/latest/swerve-x86_64-unknown-linux-gnu -O swerve
 
 # ARM64
-wget https://github.com/SpikeHD/swerve/releases/download/latest/swerve_linux_arm64 -O swerve
+wget https://github.com/SpikeHD/swerve/releases/download/latest/swerve-aarch64-unknown-linux-gnu -O swerve
 
 # ARM v7
-wget https://github.com/SpikeHD/swerve/releases/download/latest/swerve_linux_armv7 -O swerve
+wget https://github.com/SpikeHD/swerve/releases/download/latest/swerve-armv7-unknown-linux-gnueabihf -O swerve
 
 # Move to bin folder
 sudo mv swerve /usr/local/bin
@@ -68,10 +68,10 @@ sudo mv swerve /usr/local/bin
 
 ```shell
 # x86/64
-curl -L https://github.com/SpikeHD/swerve/releases/download/latest/swerve_macos_x64 -o swerve
+curl -L https://github.com/SpikeHD/swerve/releases/download/latest/swerve-x86_64-apple-darwin -o swerve
 
 # ARM64
-curl -L https://github.com/SpikeHD/swerve/releases/download/latest/swerve_macos_arm64 -o swerve
+curl -L https://github.com/SpikeHD/swerve/releases/download/latest/swerve-aarch64-apple-darwin -o swerve
 
 # Move to bin folder
 sudo mv swerve /usr/local/bin
