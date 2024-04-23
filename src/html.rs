@@ -36,7 +36,7 @@ static HTML: &str = r#"
 "#;
 
 pub fn get_directory_html(root: &Path, path: &str) -> String {
-  let path = if path.starts_with("/") {
+  let path = if path.starts_with('/') {
     ".".to_owned() + path
   } else {
     path.to_string()
@@ -45,7 +45,10 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
   let mut dirs = String::new();
   let mut files = String::new();
   let full_path = root.join(path);
-  let pretty_path = &full_path.to_string_lossy().replace('\\', "/").replace("./", "");
+  let pretty_path = &full_path
+    .to_string_lossy()
+    .replace('\\', "/")
+    .replace("./", "");
   let pretty_path = if pretty_path.is_empty() {
     "/".to_string()
   } else {
@@ -70,10 +73,8 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
     }
   }
 
-  let html = HTML
+  HTML
     .replace("__DIRECTORY__", &pretty_path)
     .replace("__DIRS__", &dirs)
-    .replace("__FILES__", &files);
-
-  html
+    .replace("__FILES__", &files)
 }
