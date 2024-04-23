@@ -55,8 +55,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # Release name is the tag name
           name: ${{ github.ref_name }}
-          body: |
-            This is an automated release.
           draft: true
           generate_release_notes: true
           prerelease: false
