@@ -7,7 +7,7 @@ on:
       - '.github/workflows/build.yml'
       - '.github/workflows/release.yml'
       - 'Cargo.toml'
-      - 'src/**/*''
+      - 'src/**/*'
   pull_request:
     paths:
       - '.github/workflows/build.yml'
