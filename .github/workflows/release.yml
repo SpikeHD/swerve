@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  push:
+    # TODO remove
+    branches:
+      - main
+    # tags:
+    #   - 'v*.*.*'
+      
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Download all artifacts from the build job
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        
+      # DEBUG: List the contents of the downloaded artifacts
+      - name: List artifacts
+        run: ls -l etc/usr/artifacts
