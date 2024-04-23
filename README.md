@@ -1,8 +1,5 @@
 <div align="center">
   <h1>Swerve</h1>
-
-  <img width="60%" src="https://github.com/SpikeHD/swerve/assets/25207995/8254eac9-f723-411f-aacb-2946743746b6" />
-  
   <p>Speedy, no-fuss serving of directories on localhost.</p>
 </div>
 
@@ -16,6 +13,12 @@
   <img src="https://img.shields.io/github/release-date/SpikeHD/swerve" />
   <img src="https://img.shields.io/github/stars/SpikeHD/swerve" />
 </div>
+
+<details>
+  <summary>Video demo</summary>
+
+  https://github.com/SpikeHD/swerve/assets/25207995/07ccc8b5-797f-4675-b266-6a0e8fbcec8b
+</details>
 
 # Table of Contents
 * [Installation](#installation)
