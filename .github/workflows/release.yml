@@ -42,10 +42,12 @@ jobs:
               files=$(ls $folder_name/$folder)
               for file in $files
               do
-                # retain the file extension (or none if no extension)
-                extension="${file##*.}"
-                # rename the file
-                mv $folder_name/$folder/$file $folder_name/$folder/$folder.$extension
+                if [ $file == "*.exe"]
+                then
+                  mv $folder_name/$folder/$file $folder_name/$folder/$folder.exe
+                else
+                  mv $folder_name/$folder/$file $folder_name/$folder/$folder
+                fi
               done
           done
 
