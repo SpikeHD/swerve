@@ -2,12 +2,13 @@ name: Release
 
 on:
   workflow_dispatch:
-  push:
+  workflow_run:
+    workflows: ["Build"]
+    # tags:
+    #   - 'v*.*.*'
     # TODO remove
     branches:
       - main
-    # tags:
-    #   - 'v*.*.*'
       
 jobs:
   release:
