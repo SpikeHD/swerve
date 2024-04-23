@@ -1,5 +1,8 @@
-<div align="center">/releases/latest/download/
+<div align="center">
   <h1>Swerve</h1>
+
+  <img width="60%" src="https://github.com/SpikeHD/swerve/assets/25207995/8254eac9-f723-411f-aacb-2946743746b6" />
+  
   <p>Speedy, no-fuss serving of directories on localhost.</p>
 </div>
 
