@@ -23,6 +23,7 @@
 * [Building](#building)
   * [Prerequisites](#prerequisites)
   * [Steps](#steps)
+* [TODO](#todo)
 * [Contributions](#contributions)
 
 # Installation
@@ -115,6 +116,10 @@ swerve -p 8080
   ```
 
 The binary will be in `target/release/`.
+
+# TODO
+
+* [ ] Include/exclude files/folders/globs
 
 # Contributions
 

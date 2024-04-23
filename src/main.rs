@@ -32,6 +32,7 @@ pub fn main() {
   log!("Serving path: {:?}", local_path);
 
   for request in server.incoming_requests() {
+    let start = std::time::Instant::now();
     // Remove leading slash
     let path = request.url().strip_prefix('/').unwrap_or(request.url());
     let path = local_path.join(PathBuf::from(path));
@@ -76,5 +77,7 @@ pub fn main() {
       }
       Err(e) => error!("Failed to serve {:?}: {:?}", path, e),
     }
+
+    log!("Request took {:?}", start.elapsed());
   }
 }
