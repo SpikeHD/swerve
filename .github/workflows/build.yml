@@ -97,12 +97,6 @@ jobs:
         with:
           path: artifacts
 
-      - name: DEBUG ls
-        run: ls -la
-
-      - name: DEBUG output github ref
-        run: echo ${{ github.ref }}
-
       - name: Rename executables to their folder names
         run: |
           # get the folder name
@@ -134,6 +128,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # Release name is the tag name
           name: ${{ github.ref_name }}
-          draft: true
+          draft: false
           generate_release_notes: true
           prerelease: false
