@@ -13,6 +13,9 @@ const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 struct Args {
   #[options(help = "Print help")]
   help: bool,
+  
+  #[options(help = "Print version")]
+  version: bool,
 
   #[options(free)]
   path: Option<std::path::PathBuf>,
@@ -23,8 +26,8 @@ struct Args {
   #[options(help = "Port to listen on", default = "8080")]
   port: u16,
 
-  #[options(help = "Print version")]
-  version: bool,
+  #[options(help = "Enable serving index.html or index.htm if path is /", default = "false")]
+  index: bool,
 }
 
 pub fn main() {
@@ -45,8 +48,8 @@ pub fn main() {
     warn!("Serving current directory");
   }
 
-  log!("Listening on port {}", port);
   log!("Serving path: {:?}", local_path);
+  log!("Access by visiting http://127.0.0.1:{} in your browser", port);
 
   for request in server.incoming_requests() {
     let start = std::time::Instant::now();
@@ -57,7 +60,7 @@ pub fn main() {
     log!("Incoming request for {:?}", path);
 
     // If the path is nothing (root), look for index.html or index.htm
-    let path = if path == PathBuf::from("./") {
+    let path = if opts.index && path == PathBuf::from("./") {
       log!("Looking for index.html or index.htm");
       let idx_files = ["index.html", "index.htm"];
       idx_files

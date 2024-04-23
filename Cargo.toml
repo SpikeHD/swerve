@@ -10,7 +10,7 @@ lto = true
 strip = "debuginfo"
 
 [dependencies]
-chrono = "0.4.38"
+chrono = { version = "0.4.38", default-features = false, features = ["clock"]}
 colored = "2.1.0"
 gumdrop = "0.8.1"
 mime_guess = "2.0.4"
