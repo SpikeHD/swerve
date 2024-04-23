@@ -15,7 +15,7 @@ struct Args {
   #[options(free)]
   path: Option<std::path::PathBuf>,
 
-  #[options(help = "Disable logging")]
+  #[options(help = "Disable logging to stdout")]
   quiet: bool,
 
   #[options(help = "Port to listen on", default = "8080")]
