@@ -42,7 +42,7 @@ jobs:
               files=$(ls $folder_name/$folder)
               for file in $files
               do
-                if [ $file == "*.exe"]
+                if [[ $file == *.exe ]]
                 then
                   mv $folder_name/$folder/$file $folder_name/$folder/$folder.exe
                 else
