@@ -89,7 +89,7 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    # if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
       # Download all artifacts from the build job
       - name: Download artifacts
