@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 static HTML: &str = r#"
 <!DOCTYPE html>
@@ -35,7 +35,7 @@ static HTML: &str = r#"
 </html>
 "#;
 
-pub fn get_directory_html(path: &PathBuf) -> String {
+pub fn get_directory_html(path: &Path) -> String {
   let mut dirs = String::new();
   let mut files = String::new();
 

@@ -106,35 +106,33 @@ pub fn main() {
       continue;
     }
 
-    let response;
-
     // If the path is a directory, serve the directory
-    if path.is_dir() && opts.serve_directories {
+    let response = if path.is_dir() && opts.serve_directories {
       let html = html::get_directory_html(&path);
       let mut res = Response::from_string(html);
 
       res.add_header(Header::from_str("Content-Type: text/html").unwrap());
 
-      response = request.respond(res);
+      request.respond(res)
     } else {
-      response = match std::fs::read(&path) {
+      match std::fs::read(&path) {
         Ok(content) => {
           let mime = from_path(&path).first_or_text_plain();
           let mut res = Response::from_data(content.clone());
-  
+
           // Headers
           let content_type = Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
           let content_length =
             Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
-  
+
           res.add_header(content_type);
           res.add_header(content_length);
-  
+
           request.respond(res)
         }
         Err(_) => request.respond(Response::empty(404)),
-      };
-    }
+      }
+    };
 
     // Suppress/handle error
     match response {
