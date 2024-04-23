@@ -129,6 +129,7 @@ The binary will be in `target/release/`.
 # TODO
 
 * [x] Include/exclude files/folders/globs
+* [ ] Embedded HTML/CSS for displaying directories
 
 # Contributions
 
