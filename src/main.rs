@@ -6,6 +6,7 @@ use tiny_http::{Header, Response, Server};
 use crate::log::set_silent;
 
 mod globs;
+mod html;
 mod log;
 
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
@@ -32,6 +33,13 @@ struct Args {
     default = "false"
   )]
   root_index: bool,
+
+  #[options(
+    help = "Serve an HTML document listing files and directories, when navigated to a directory",
+    default = "false",
+    short = "d"
+  )]
+  serve_directories: bool,
 
   #[options(help = "List of glob patterns to include", meta = "GLOB")]
   include: Vec<String>,
@@ -98,23 +106,35 @@ pub fn main() {
       continue;
     }
 
-    let response = match std::fs::read(&path) {
-      Ok(content) => {
-        let mime = from_path(&path).first_or_octet_stream();
-        let mut response = Response::from_data(content.clone());
+    let response;
 
-        // Headers
-        let content_type = Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
-        let content_length =
-          Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
+    // If the path is a directory, serve the directory
+    if path.is_dir() && opts.serve_directories {
+      let html = html::get_directory_html(&path);
+      let mut res = Response::from_string(html);
 
-        response.add_header(content_type);
-        response.add_header(content_length);
+      res.add_header(Header::from_str("Content-Type: text/html").unwrap());
 
-        request.respond(response)
-      }
-      Err(_) => request.respond(Response::empty(404)),
-    };
+      response = request.respond(res);
+    } else {
+      response = match std::fs::read(&path) {
+        Ok(content) => {
+          let mime = from_path(&path).first_or_text_plain();
+          let mut res = Response::from_data(content.clone());
+  
+          // Headers
+          let content_type = Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
+          let content_length =
+            Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
+  
+          res.add_header(content_type);
+          res.add_header(content_length);
+  
+          request.respond(res)
+        }
+        Err(_) => request.respond(Response::empty(404)),
+      };
+    }
 
     // Suppress/handle error
     match response {
