@@ -27,8 +27,28 @@ jobs:
           allow_forks: false
           branch: main
 
-      - name: DEBUG list artifacts
-        run: ls -la artifacts
+      - name: Rename executables to their folder names
+        run: |
+          for file in *; do
+            # Check if the file is a regular file
+            if [ -f "$file" ]; then
+              # Extract the parent directory name
+              parent_dir=$(basename "$(dirname "$file")")
+                  
+              # Rename the file
+              mv "$file" "$(dirname "$file")/$parent_dir$(basename "$file")"
+            fi
+          done
 
-      - name: DEBUG list files for windows
-        run: ls -la artifacts/swerve-x86_64-pc-windows-msvc
+      - name: Create release using all artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Release name is the tag name
+          name: ${{ github.ref_name }}
+          body: |
+            This is an automated release.
+          draft: true
+          prerelease: false
+        
