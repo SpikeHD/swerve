@@ -60,7 +60,11 @@ pub fn main() {
   let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
 
   if opts.version {
-    println!("swerve {}-{}", VERSION.unwrap_or("unknown"), HASH.unwrap_or("unknown"));
+    println!(
+      "swerve {}-{}",
+      VERSION.unwrap_or("unknown"),
+      HASH.unwrap_or("unknown")
+    );
     return;
   }
 

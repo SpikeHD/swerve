@@ -78,7 +78,7 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
       Err(_) => {
         log!("Failed to read entry: {:?}", entry);
         continue;
-      },
+      }
     };
     let name = entry.file_name().into_string().unwrap();
     let mut path_as_str = path.replace('\\', "/").replace("./", "/");
