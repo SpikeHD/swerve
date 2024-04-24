@@ -71,6 +71,8 @@ jobs:
       
       - name: Build
         run: cargo build --release --target ${{ matrix.config.target }}
+        env:
+          GIT_HASH: ${{ github.sha }}
 
       - name: Upload
         if: matrix.config.platform != 'windows-latest'
