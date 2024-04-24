@@ -8,6 +8,7 @@ use crate::log::set_silent;
 mod globs;
 mod html;
 mod log;
+mod open;
 
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 
@@ -46,6 +47,9 @@ struct Args {
 
   #[options(help = "List of glob patterns to exclude", meta = "GLOB")]
   exclude: Vec<String>,
+
+  #[options(help = "Open the browser after starting the server", default = "false")]
+  open: bool,
 }
 
 pub fn main() {
@@ -75,6 +79,11 @@ pub fn main() {
     "Access by visiting http://127.0.0.1:{} in your browser",
     port
   );
+
+  // Open in default browser
+  if opts.open {
+    open::open_in_browser(&format!("http://127.0.0.1:{}", port));
+  }
 
   for request in server.incoming_requests() {
     let start = std::time::Instant::now();
