@@ -1,5 +1,7 @@
 use std::path::Path;
 
+use crate::log;
+
 static HTML: &str = r#"
 <!DOCTYPE html>
 <html lang="en">
@@ -55,8 +57,29 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
     pretty_path.to_string()
   };
 
-  for entry in full_path.read_dir().unwrap() {
-    let entry = entry.unwrap();
+  let dir = full_path.read_dir();
+
+  // Sort by directory name
+  let dir = match dir {
+    Ok(dir) => dir,
+    Err(_) => return "Failed to read directory".to_string(),
+  };
+
+  let mut dir: Vec<_> = dir.collect();
+  dir.sort_by(|a, b| {
+    let a = a.as_ref().unwrap().file_name();
+    let b = b.as_ref().unwrap().file_name();
+    a.cmp(&b)
+  });
+
+  for entry in dir {
+    let entry = match entry {
+      Ok(e) => e,
+      Err(_) => {
+        log!("Failed to read entry: {:?}", entry);
+        continue;
+      },
+    };
     let name = entry.file_name().into_string().unwrap();
     let mut path_as_str = path.replace('\\', "/").replace("./", "/");
 
