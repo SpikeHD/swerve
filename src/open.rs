@@ -4,7 +4,7 @@ pub fn open_in_browser(url: &str) {
   #[cfg(target_os = "windows")]
   {
     Command::new("cmd")
-      .args(&["/C", "start", url])
+      .args(["/C", "start", url])
       .spawn()
       .expect("Failed to open browser");
   }
