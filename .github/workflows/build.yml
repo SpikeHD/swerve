@@ -43,6 +43,10 @@ jobs:
           - platform: windows-latest
             target: 'aarch64-pc-windows-msvc'
     steps:
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.8
+        with:
+          toolchain: stable
+          cache: false
       - uses: actions/cache@v4
         with:
           path: |
@@ -57,12 +61,12 @@ jobs:
 
       # if we are linux and an ARM64 target, install the right linker
       - name: Install ARM linker
-        if: matrix.config.platform == 'ubuntu-latest' && (matrix.config.target == 'aarch64-unknown-linux-gnu')
+        if: matrix.config.platform == 'ubuntu-latest' && matrix.config.target == 'aarch64-unknown-linux-gnu'
         run: sudo apt-get install -y gcc-aarch64-linux-gnu
 
       # if we are linux and an ARMv7 target, install the right linker
       - name: Install ARMv7 linker
-        if: matrix.config.platform == 'ubuntu-latest' && (matrix.config.target == 'armv7-unknown-linux-gnueabihf')
+        if: matrix.config.platform == 'ubuntu-latest' && matrix.config.target == 'armv7-unknown-linux-gnueabihf'
         run: sudo apt-get install -y gcc-arm-linux-gnueabihf
 
       - name: Add targets
