@@ -33,9 +33,9 @@ jobs:
           - platform: ubuntu-latest
             target: 'armv7-unknown-linux-gnueabihf'
 
-          - platform: macos-latest
+          - platform: macos-13
             target: 'x86_64-apple-darwin'
-          - platform: macos-latest
+          - platform: macos-13
             target: 'aarch64-apple-darwin'
 
           - platform: windows-latest
