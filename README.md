@@ -22,9 +22,8 @@
 
 # Table of Contents
 * [Installation](#installation)
-  * [Windows](#windows)
-  * [Linux](#linux)
-  * [macOS](#macos)
+  * [Package Repositories](#package-repositories)
+  * [Manual Installation](#manual-installation)
 * [Usage](#usage)
 * [Building](#building)
   * [Prerequisites](#prerequisites)
@@ -36,7 +35,23 @@
 
 ## Package Repositories
 
-Not yet available in package repositories. If you'd like to add it to your favorite one, feel free!
+### Windows
+
+* WinGet
+  ```sh
+  winget install SpikeHD.swerve
+  ```
+
+### Linux
+
+Nowhere... yet
+
+### MacOS
+
+Nowhere... yet
+
+> [!NOTE]
+> Maintaining `swerve` somewhere else? Feel free to add it here!
 
 ## Manual Installation
 
