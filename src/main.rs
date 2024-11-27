@@ -112,7 +112,7 @@ pub fn main() {
     if opts.root_index {
       if let Ok(dir) = fs::read_dir(path.clone()) {
         log!("Looking for index.html or index.htm in {:?}", path);
-        
+
         // Read the dir, look for index.html or index.htm
         let idx_files = ["index.html", "index.htm"];
         for entry in dir {
