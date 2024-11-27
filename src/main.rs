@@ -1,6 +1,6 @@
 use gumdrop::Options;
 use mime_guess::from_path;
-use std::{path::PathBuf, str::FromStr};
+use std::{fs, path::PathBuf, str::FromStr};
 use tiny_http::{Header, Response, Server};
 
 use crate::log::set_silent;
@@ -31,7 +31,7 @@ struct Args {
   port: u16,
 
   #[options(
-    help = "Enable serving index.html or index.htm if path is /",
+    help = "Serve index.html or index.htm if path is a directory containing such a file",
     default = "false"
   )]
   root_index: bool,
@@ -94,22 +94,37 @@ pub fn main() {
     let start = std::time::Instant::now();
     // Remove leading slash
     let path = request.url().strip_prefix('/').unwrap_or(request.url());
-    let path = local_path.join(PathBuf::from(path));
+    let mut path = local_path.join(PathBuf::from(path));
 
     log!("Incoming request for {:?}", path);
 
-    // If the path is nothing (root), look for index.html or index.htm
-    let path = if opts.root_index && path == PathBuf::from("./") {
-      log!("Looking for index.html or index.htm");
-      let idx_files = ["index.html", "index.htm"];
-      idx_files
-        .iter()
-        .map(|f| local_path.join(PathBuf::from(f)))
-        .find(|f| f.exists())
-        .unwrap_or(path)
-    } else {
-      path
-    };
+    // If the path is a dir but the URL does NOT end with a slash, redirect to version with slash
+    if path.is_dir() && !request.url().ends_with('/') {
+      warn!("URL does not have trailing slash, redirecting...");
+
+      let mut res = Response::empty(301);
+      res.add_header(Header::from_str(format!("Location: {}/", request.url()).as_str()).unwrap());
+      request.respond(res).expect("Failed to respond with 301");
+      continue;
+    }
+
+    // If the path is nothing (root) or a directory, look for index.html or index.htm
+    if opts.root_index {
+      if let Ok(dir) = fs::read_dir(path.clone()) {
+        log!("Looking for index.html or index.htm in {:?}", path);
+        
+        // Read the dir, look for index.html or index.htm
+        let idx_files = ["index.html", "index.htm"];
+        for entry in dir {
+          let entry = entry.unwrap();
+          let entry_path = entry.path();
+          if idx_files.contains(&entry_path.file_name().unwrap().to_str().unwrap()) {
+            path = entry_path;
+            break;
+          }
+        }
+      }
+    }
 
     // See if the path is valid
     if !globs::path_is_valid(path.to_str().unwrap()) {
