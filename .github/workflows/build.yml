@@ -71,11 +71,15 @@ jobs:
 
       - name: Add targets
         run: rustup target add ${{ matrix.config.target }}
+
+      - name: Define SHA_SHORT
+        id: sha
+        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       
       - name: Build
         run: cargo build --release --target ${{ matrix.config.target }}
         env:
-          GIT_HASH: ${{ github.sha }}
+          GIT_HASH: ${{ steps.sha.outputs.SHA_SHORT }}
 
       - name: Upload
         if: matrix.config.platform != 'windows-latest'
