@@ -22,3 +22,7 @@ gumdrop = "0.8"
 local-ip-address = "0.6"
 mime_guess = { version = "2.0", no-default-features = true }
 tiny_http = "0.12"
+
+# Non-windows dependencies
+[target.'cfg(not(windows))'.dependencies]
+signal-hook = "0.3.17"

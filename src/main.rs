@@ -1,5 +1,7 @@
 use gumdrop::Options;
 use mime_guess::from_path;
+#[cfg(not(windows))]
+use signal_hook::consts::{SIGINT, SIGTERM};
 use std::{
   fs,
   net::{IpAddr, Ipv4Addr},
@@ -113,6 +115,23 @@ pub fn main() {
   if opts.open {
     open::open_in_browser(&format!("http://{}:{}", addr, port));
   }
+
+  // Create signal handler
+  #[cfg(not(windows))]
+  std::thread::spawn(|| {
+    let signals = signal_hook::iterator::Signals::new(&[SIGINT, SIGTERM])
+      .expect("Failed to create signal iterator");
+
+    for signal in signals.forever() {
+      match signal {
+        SIGINT | SIGTERM => {
+          log!("Received signal {}, shutting down...", signal);
+          std::process::exit(0);
+        }
+        _ => {}
+      }
+    }
+  });
 
   for request in server.incoming_requests() {
     let start = std::time::Instant::now();
