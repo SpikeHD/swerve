@@ -1,6 +1,6 @@
 use gumdrop::Options;
 use mime_guess::from_path;
-use std::{fs, path::PathBuf, str::FromStr};
+use std::{fs, net::{IpAddr, Ipv4Addr}, path::PathBuf, str::FromStr};
 use tiny_http::{Header, Response, Server};
 
 use crate::log::set_silent;
@@ -51,19 +51,27 @@ struct Args {
 
   #[options(help = "Open the browser after starting the server", default = "false")]
   open: bool,
+
+  #[options(help = "Bind to a specific address (or any, with 0.0.0.0)", default = "127.0.0.1", meta = "ADDRESS")]
+  bind: String,
 }
 
 pub fn main() {
   let opts = Args::parse_args_default_or_exit();
   let port = opts.port;
-  let server = Server::http(format!("127.0.0.1:{}", port)).unwrap();
+  let server = Server::http(format!("{}:{}", opts.bind, port)).unwrap();
   let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
+  let addr = if opts.bind == "0.0.0.0" {
+    local_ip_address::local_ip().unwrap_or(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))).to_string()
+  } else {
+    opts.bind.clone()
+  };
 
   if opts.version {
     println!(
       "swerve {}-{}",
       VERSION.unwrap_or("unknown"),
-      HASH.unwrap_or("unknown")
+      HASH.unwrap_or("dev")
     );
     return;
   }
@@ -81,13 +89,14 @@ pub fn main() {
 
   log!("Serving path: {:?}", local_path);
   log!(
-    "Access by visiting http://127.0.0.1:{} in your browser",
+    "Access by visiting http://{}:{} in your browser",
+    addr,
     port
   );
 
   // Open in default browser
   if opts.open {
-    open::open_in_browser(&format!("http://127.0.0.1:{}", port));
+    open::open_in_browser(&format!("http://{}:{}", addr, port));
   }
 
   for request in server.incoming_requests() {

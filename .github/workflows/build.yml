@@ -75,11 +75,22 @@ jobs:
       - name: Define SHA_SHORT
         id: sha
         run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Define linker if building Linux ARM64
+        if: matrix.config.platform == 'ubuntu-latest' && (matrix.config.target == 'aarch64-unknown-linux-gnu')
+        id: linker_arm64
+        run: echo "LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_OUTPUT
+
+      - name: Define linker if building Linux ARMv7
+        if: matrix.config.platform == 'ubuntu-latest' && (matrix.config.target == 'armv7-unknown-linux-gnueabihf')
+        id: linker_armv7
+        run: echo "LINKER=arm-linux-gnueabihf-gcc" >> $GITHUB_OUTPUT
       
       - name: Build
-        run: cargo build --release --target ${{ matrix.config.target }}
+        run: cargo build --release --target ${{ matrix.config.target }} ${{ steps.linker_arm64.outputs.LINKER && '--config target.aarch64-unknown-linux-gnu.linker=${{ steps.linker_arm64.outputs.LINKER }}' || '' }} ${{ steps.linker_armv7.outputs.LINKER && '--config target.armv7-unknown-linux-gnueabihf.linker=${{ steps.linker_armv7.outputs.LINKER }}' || '' }}
         env:
           GIT_HASH: ${{ steps.sha.outputs.SHA_SHORT }}
+          RUSTFLAGS: ${{ matrix.config.platform == 'windows-latest' && '-C target-feature=+crt-static' || '' }}
 
       - name: Upload
         if: matrix.config.platform != 'windows-latest'
