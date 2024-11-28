@@ -14,6 +14,9 @@ strip = "debuginfo"
 # We do not optimize the top level binary this way because that *does* seem to have a slight performance impact
 opt-level = "z"
 
+[dev-dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["blocking"] }
+
 [dependencies]
 chrono = { version = "0.4", default-features = false, features = ["clock"]}
 colored = "2.1"
