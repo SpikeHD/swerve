@@ -1,3 +1,4 @@
+use colored::control;
 use gumdrop::Options;
 use mime_guess::from_path;
 #[cfg(not(windows))]
@@ -76,6 +77,9 @@ pub fn main() {
   std::panic::set_hook(Box::new(|e| {
     error!("Panic: {:?}", e);
   }));
+
+  #[cfg(target_os = "windows")]
+  control::set_virtual_terminal(true).unwrap_or_default();
 
   let opts = Args::parse_args_default_or_exit();
   let port = opts.port;
