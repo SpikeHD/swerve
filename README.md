@@ -66,17 +66,11 @@ Then you can move it somewhere and add it to your PATH variable.
 ### Linux
 
 ```shell
-# x86/64
-wget https://github.com/SpikeHD/swerve/releases/latest/download/swerve-x86_64-unknown-linux-gnu -O swerve
+# Run the install script
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SpikeHD/swerve/refs/heads/main/install.sh)"
 
-# ARM64
-wget https://github.com/SpikeHD/swerve/releases/latest/download/swerve-aarch64-unknown-linux-gnu -O swerve
-
-# ARM v7
-wget https://github.com/SpikeHD/swerve/releases/latest/download/swerve-armv7-unknown-linux-gnueabihf -O swerve
-
-# Move to bin folder
-sudo mv swerve /usr/local/bin
+# You can uninstall by removing the binary from /usr/local/bin
+rm /usr/local/bin/swerve
 ```
 
 ### macOS
