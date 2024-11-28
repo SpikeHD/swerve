@@ -7,20 +7,43 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Detect system architecture
+os=$(uname -s)
 arch=$(uname -m)
 
-case "$arch" in
-    armv7*)
-        target="armv7-unknown-linux-gnueabihf"
+case "$os" in
+    Linux)
+        case "$arch" in
+            armv7*)
+                target="armv7-unknown-linux-gnueabihf"
+                ;;
+            aarch64 | aarch64_be | armv8b | armv8l)
+                target="aarch64-unknown-linux-gnu"
+                ;;
+            i686 | x86_64)
+                target="x86_64-unknown-linux-gnu"
+                ;;
+            *)
+                echo "Unsupported architecture: $arch"
+                exit 1
+                ;;
+        esac
         ;;
-    aarch64 | aarch64_be | armv8b | armv8l)
-        target="aarch64-unknown-linux-gnu"
-        ;;
-    i686 | x86_64)
-        target="x86_64-unknown-linux-gnu"
+    Darwin)
+        case "$arch" in
+            arm64)
+                target="aarch64-apple-darwin"
+                ;;
+            x86_64)
+                target="x86_64-apple-darwin"
+                ;;
+            *)
+                echo "Unsupported architecture: $arch"
+                exit 1
+                ;;
+        esac
         ;;
     *)
-        echo "Unsupported architecture: $arch"
+        echo "Unsupported operating system: $os"
         exit 1
         ;;
 esac
