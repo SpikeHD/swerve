@@ -66,6 +66,10 @@ struct Args {
 }
 
 pub fn main() {
+  std::panic::set_hook(Box::new(|e| {
+    error!("Panic: {:?}", e);
+  }));
+
   let opts = Args::parse_args_default_or_exit();
   let port = opts.port;
   let server = Server::http(format!("{}:{}", opts.bind, port)).unwrap();

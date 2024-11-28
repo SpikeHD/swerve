@@ -300,7 +300,6 @@ dependencies = [
  "gumdrop",
  "local-ip-address",
  "mime_guess",
- "once_cell",
  "tiny_http",
 ]
 
