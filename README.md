@@ -62,8 +62,6 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/SpikeHD/swerve/refs/he
 del C:\Program Files\Swerve
 ```
 
-Then you can move it somewhere and add it to your PATH variable.
-
 ### Linux
 
 ```shell
