@@ -123,7 +123,7 @@ RUN curl -fsSL https://raw.githubusercontent.com/SpikeHD/swerve/refs/heads/main/
 
 EXPOSE 8080
 
-CMD ["./swerve", "--port", "8080", "--bind", "0.0.0.0", "-r"]
+CMD ["swerve", "--port", "8080", "--bind", "0.0.0.0", "-r"]
 ```
 
 You can access this by running the following:
