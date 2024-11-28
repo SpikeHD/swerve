@@ -2,11 +2,12 @@ use gumdrop::Options;
 use mime_guess::from_path;
 #[cfg(not(windows))]
 use signal_hook::consts::{SIGINT, SIGTERM};
+use threadpool::ThreadPool;
 use std::{
   fs,
   net::{IpAddr, Ipv4Addr},
   path::PathBuf,
-  str::FromStr,
+  str::FromStr, sync::Arc,
 };
 use tiny_http::{Header, Response, Server};
 
@@ -65,6 +66,9 @@ struct Args {
     meta = "ADDRESS"
   )]
   bind: String,
+
+  #[options(help = "Amount of threads to spawn for serving files", default = "1")]
+  threads: usize,
 }
 
 pub fn main() {
@@ -75,7 +79,8 @@ pub fn main() {
   let opts = Args::parse_args_default_or_exit();
   let port = opts.port;
   let server = Server::http(format!("{}:{}", opts.bind, port)).unwrap();
-  let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
+  // This is an Arc because it's used in the threadpool
+  let local_path = Arc::new(opts.path.unwrap_or(std::path::PathBuf::from(".")));
   let addr = if opts.bind == "0.0.0.0" {
     local_ip_address::local_ip()
       .unwrap_or(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)))
@@ -96,13 +101,17 @@ pub fn main() {
   set_silent(opts.quiet);
 
   // If the path is the current dir, warn just in case
-  if local_path == PathBuf::from(".") {
+  if local_path == Arc::new(PathBuf::from(".")) {
     warn!("Serving current directory");
   }
 
   // Set includes and excludes
   globs::set_includes(opts.include);
   globs::set_excludes(opts.exclude);
+
+  if opts.threads == 1 {
+    warn!("Running in single-threaded mode! You may benefit from running with the --threads option");
+  }
 
   log!("Serving path: {:?}", local_path);
   log!(
@@ -133,87 +142,93 @@ pub fn main() {
     }
   });
 
+  let pool = ThreadPool::new(opts.threads);
+
   for request in server.incoming_requests() {
-    let start = std::time::Instant::now();
-    // Remove leading slash
-    let path = request.url().strip_prefix('/').unwrap_or(request.url());
-    let mut path = local_path.join(PathBuf::from(path));
+    let local_path = local_path.clone();
 
-    log!("Incoming request for {:?}", path);
+    pool.execute(move || {
+      let start = std::time::Instant::now();
+      // Remove leading slash
+      let path = request.url().strip_prefix('/').unwrap_or(request.url());
+      let mut path = local_path.join(PathBuf::from(path));
 
-    // If the path is a dir but the URL does NOT end with a slash, redirect to version with slash
-    if path.is_dir() && !request.url().ends_with('/') {
-      warn!("URL does not have trailing slash, redirecting...");
+      log!("Incoming request for {:?}", path);
 
-      let mut res = Response::empty(301);
-      res.add_header(Header::from_str(format!("Location: {}/", request.url()).as_str()).unwrap());
-      request.respond(res).expect("Failed to respond with 301");
-      continue;
-    }
+      // If the path is a dir but the URL does NOT end with a slash, redirect to version with slash
+      if path.is_dir() && !request.url().ends_with('/') {
+        warn!("URL does not have trailing slash, redirecting...");
 
-    // If the path is nothing (root) or a directory, look for index.html or index.htm
-    if opts.root_index {
-      if let Ok(dir) = fs::read_dir(path.clone()) {
-        log!("Looking for index.html or index.htm in {:?}", path);
+        let mut res = Response::empty(301);
+        res.add_header(Header::from_str(format!("Location: {}/", request.url()).as_str()).unwrap());
+        request.respond(res).expect("Failed to respond with 301");
+        return;
+      }
 
-        // Read the dir, look for index.html or index.htm
-        let idx_files = ["index.html", "index.htm"];
-        for entry in dir {
-          let entry = entry.unwrap();
-          let entry_path = entry.path();
-          if idx_files.contains(&entry_path.file_name().unwrap().to_str().unwrap()) {
-            path = entry_path;
-            break;
+      // If the path is nothing (root) or a directory, look for index.html or index.htm
+      if opts.root_index {
+        if let Ok(dir) = fs::read_dir(path.clone()) {
+          log!("Looking for index.html or index.htm in {:?}", path);
+
+          // Read the dir, look for index.html or index.htm
+          let idx_files = ["index.html", "index.htm"];
+          for entry in dir {
+            let entry = entry.unwrap();
+            let entry_path = entry.path();
+            if idx_files.contains(&entry_path.file_name().unwrap().to_str().unwrap()) {
+              path = entry_path;
+              break;
+            }
           }
         }
       }
-    }
 
-    // See if the path is valid
-    if !globs::path_is_valid(path.to_str().unwrap()) {
-      log!("Path is invalid due to glob patterns");
-      request
-        .respond(Response::empty(404))
-        .expect("Failed to respond with 404");
-      continue;
-    }
+      // See if the path is valid
+      if !globs::path_is_valid(path.to_str().unwrap()) {
+        log!("Path is invalid due to glob patterns");
+        request
+          .respond(Response::empty(404))
+          .expect("Failed to respond with 404");
+        return;
+      }
 
-    // If the path is a directory, serve the directory
-    let response = if path.is_dir() && opts.serve_directories {
-      let html = html::get_directory_html(&local_path, request.url());
-      let mut res = Response::from_string(html);
+      // If the path is a directory, serve the directory
+      let response = if path.is_dir() && opts.serve_directories {
+        let html = html::get_directory_html(&local_path, request.url());
+        let mut res = Response::from_string(html);
 
-      res.add_header(Header::from_str("Content-Type: text/html").unwrap());
+        res.add_header(Header::from_str("Content-Type: text/html").unwrap());
 
-      request.respond(res)
-    } else {
-      match std::fs::read(&path) {
-        Ok(content) => {
-          let mime = from_path(&path).first_or_text_plain();
-          let mut res = Response::from_data(content.clone());
+        request.respond(res)
+      } else {
+        match std::fs::read(&path) {
+          Ok(content) => {
+            let mime = from_path(&path).first_or_text_plain();
+            let mut res = Response::from_data(content.clone());
 
-          // Headers
-          let content_type = Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
-          let content_length =
-            Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
+            // Headers
+            let content_type = Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
+            let content_length =
+              Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
 
-          res.add_header(content_type);
-          res.add_header(content_length);
+            res.add_header(content_type);
+            res.add_header(content_length);
 
-          request.respond(res)
+            request.respond(res)
+          }
+          Err(_) => request.respond(Response::empty(404)),
         }
-        Err(_) => request.respond(Response::empty(404)),
-      }
-    };
+      };
 
-    // Suppress/handle error
-    match response {
-      Ok(_) => {
-        success!("Reponse served for {:?}", path);
+      // Suppress/handle error
+      match response {
+        Ok(_) => {
+          success!("Reponse served for {:?}", path);
+        }
+        Err(e) => error!("Failed to serve {:?}: {:?}", path, e),
       }
-      Err(e) => error!("Failed to serve {:?}: {:?}", path, e),
-    }
 
-    log!("Request took {:?}", start.elapsed());
+      log!("Request took {:?}", start.elapsed());
+    });
   }
 }
