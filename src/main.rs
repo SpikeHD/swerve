@@ -2,13 +2,14 @@ use gumdrop::Options;
 use mime_guess::from_path;
 #[cfg(not(windows))]
 use signal_hook::consts::{SIGINT, SIGTERM};
-use threadpool::ThreadPool;
 use std::{
   fs,
   net::{IpAddr, Ipv4Addr},
   path::PathBuf,
-  str::FromStr, sync::Arc,
+  str::FromStr,
+  sync::Arc,
 };
+use threadpool::ThreadPool;
 use tiny_http::{Header, Response, Server};
 
 use crate::log::set_silent;
@@ -110,7 +111,9 @@ pub fn main() {
   globs::set_excludes(opts.exclude);
 
   if opts.threads == 1 {
-    warn!("Running in single-threaded mode! You may benefit from running with the --threads option");
+    warn!(
+      "Running in single-threaded mode! You may benefit from running with the --threads option"
+    );
   }
 
   log!("Serving path: {:?}", local_path);
@@ -207,7 +210,8 @@ pub fn main() {
             let mut res = Response::from_data(content.clone());
 
             // Headers
-            let content_type = Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
+            let content_type =
+              Header::from_str(format!("Content-Type: {}", mime).as_str()).unwrap();
             let content_length =
               Header::from_str(format!("Content-Length: {}", content.len()).as_str()).unwrap();
 
