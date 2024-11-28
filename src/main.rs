@@ -119,7 +119,7 @@ pub fn main() {
   // Create signal handler
   #[cfg(not(windows))]
   std::thread::spawn(|| {
-    let signals = signal_hook::iterator::Signals::new(&[SIGINT, SIGTERM])
+    let mut signals = signal_hook::iterator::Signals::new(&[SIGINT, SIGTERM])
       .expect("Failed to create signal iterator");
 
     for signal in signals.forever() {
