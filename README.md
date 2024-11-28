@@ -77,14 +77,11 @@ rm /usr/local/bin/swerve
 ### macOS
 
 ```shell
-# x86/64
-curl -L https://github.com/SpikeHD/swerve/releases/latest/download/swerve-x86_64-apple-darwin -o swerve
+# Run the install script
+curl -fsSL https://raw.githubusercontent.com/SpikeHD/swerve/refs/heads/main/install.sh | sudo bash
 
-# ARM64
-curl -L https://github.com/SpikeHD/swerve/releases/latest/download/swerve-aarch64-apple-darwin -o swerve
-
-# Move to bin folder
-sudo mv swerve /usr/local/bin
+# You can uninstall by removing the binary from /usr/local/bin
+rm /usr/local/bin/swerve
 ```
 
 # Usage
