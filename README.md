@@ -67,7 +67,7 @@ Then you can move it somewhere and add it to your PATH variable.
 
 ```shell
 # Run the install script
-sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SpikeHD/swerve/refs/heads/main/install.sh)"
+curl -fsSL https://raw.githubusercontent.com/SpikeHD/swerve/refs/heads/main/install.sh | sudo bash
 
 # You can uninstall by removing the binary from /usr/local/bin
 rm /usr/local/bin/swerve
@@ -118,9 +118,8 @@ FROM ubuntu:latest
 
 RUN echo "<html><body><h1>Hello World</h1></body></html>" > ./index.html
 
-RUN apt-get update && apt-get install -y wget
-RUN wget https://github.com/SpikeHD/swerve/releases/latest/download/swerve-x86_64-unknown-linux-gnu -O swerve
-RUN chmod +x swerve
+RUN apt update && apt install -y curl
+RUN curl -fsSL https://raw.githubusercontent.com/SpikeHD/swerve/refs/heads/main/install.sh | bash
 
 EXPOSE 8080
 
