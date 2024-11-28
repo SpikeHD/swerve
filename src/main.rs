@@ -1,6 +1,11 @@
 use gumdrop::Options;
 use mime_guess::from_path;
-use std::{fs, net::{IpAddr, Ipv4Addr}, path::PathBuf, str::FromStr};
+use std::{
+  fs,
+  net::{IpAddr, Ipv4Addr},
+  path::PathBuf,
+  str::FromStr,
+};
 use tiny_http::{Header, Response, Server};
 
 use crate::log::set_silent;
@@ -52,7 +57,11 @@ struct Args {
   #[options(help = "Open the browser after starting the server", default = "false")]
   open: bool,
 
-  #[options(help = "Bind to a specific address (or any, with 0.0.0.0)", default = "127.0.0.1", meta = "ADDRESS")]
+  #[options(
+    help = "Bind to a specific address (or any, with 0.0.0.0)",
+    default = "127.0.0.1",
+    meta = "ADDRESS"
+  )]
   bind: String,
 }
 
@@ -62,7 +71,9 @@ pub fn main() {
   let server = Server::http(format!("{}:{}", opts.bind, port)).unwrap();
   let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
   let addr = if opts.bind == "0.0.0.0" {
-    local_ip_address::local_ip().unwrap_or(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))).to_string()
+    local_ip_address::local_ip()
+      .unwrap_or(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)))
+      .to_string()
   } else {
     opts.bind.clone()
   };
