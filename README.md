@@ -54,12 +54,12 @@ You can obtain binaries through [releases](https://github.com/SpikeHD/swerve/rel
 
 ### Windows
 
-```shell
-# x86/64
-iwr https://github.com/SpikeHD/swerve/releases/latest/download/swerve-x86_64-pc-windows-msvc.exe -OutFile swerve.exe
+```powershell
+# Run the install script
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/SpikeHD/swerve/refs/heads/main/install.ps1" -OutFile "$env:TEMP\install.ps1"; PowerShell -ExecutionPolicy Bypass -File "$env:TEMP\install.ps1"
 
-# ARM64
-iwr https://github.com/SpikeHD/swerve/releases/latest/download/swerve-aarch64-pc-windows-msvc.exe  -OutFile swerve.exe
+# You can uninstall by deleting C:\Program Files\Swerve
+del C:\Program Files\Swerve
 ```
 
 Then you can move it somewhere and add it to your PATH variable.
