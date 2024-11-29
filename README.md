@@ -14,6 +14,8 @@
   <img src="https://img.shields.io/github/stars/SpikeHD/swerve" />
 </div>
 
+<img width="100%" src="https://github.com/user-attachments/assets/61993ca9-aca0-4e5c-b4d6-c6fbcc98394b" />
+
 # Features
 
 * Multithreaded with a customizable thread pool
