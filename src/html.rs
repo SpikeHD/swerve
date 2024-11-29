@@ -1,5 +1,7 @@
 use std::path::Path;
 
+use chrono::{DateTime, Utc};
+
 use crate::log;
 
 static HTML: &str = r#"
@@ -9,6 +11,7 @@ static HTML: &str = r#"
     <h1>Index of __DIRECTORY__</h1>
 
     <ul>
+      <li><div>Name</div> <span>Last Modified</span> <span>Size</span></li>
       <li><a href="..">..</a></li>
       __DIRS__
       __FILES__
@@ -26,9 +29,27 @@ static HTML: &str = r#"
     }
 
     li {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
       padding: 0.5em 0;
       border-bottom: 1px solid #777;
       vertical-align: middle;
+    }
+
+    li a {
+      width: 10vw;
+      color: #0066d1;
+    }
+
+    li div {
+      width: 10vw;
+    }
+
+    li span {
+      width: 30vw;
     }
 
     li:last-child {
@@ -87,11 +108,16 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
       path_as_str = "".to_string();
     }
 
+    let meta = entry.metadata().unwrap();
+    let last_modified = meta.modified().unwrap();
+    let last_modified: DateTime<Utc> = last_modified.into();
+    let size = meta.len();
+
     if entry.file_type().unwrap().is_dir() {
       let href = format!("<a href=\"{}/{}\">{}/</a>", path_as_str, name, name);
       dirs.push_str(&format!("<li>{}</li>", href));
     } else {
-      let href = format!("<a href=\"{}/{}\">{}</a>", path_as_str, name, name);
+      let href = format!("<a href=\"{}/{}\">{}</a> <span>{}</span> <span>{}</span>", path_as_str, name, name, last_modified.format("%Y-%m-%d %H:%M:%S").to_string(), bytes_to_human(size));
       files.push_str(&format!("<li>{}</li>", href));
     }
   }
@@ -100,4 +126,23 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
     .replace("__DIRECTORY__", &pretty_path)
     .replace("__DIRS__", &dirs)
     .replace("__FILES__", &files)
+}
+
+fn bytes_to_human(bytes: u64) -> String {
+  let mut bytes = bytes as f64;
+  let mut unit = "B";
+
+  if bytes > 1024.0 {
+    bytes /= 1024.0;
+    unit = "KB";
+  }
+  if bytes > 1024.0 {
+    bytes /= 1024.0;
+    unit = "MB";
+  }
+  if bytes > 1024.0 {
+    bytes /= 1024.0;
+    unit = "GB";
+  }
+  format!("{:.2} {}", bytes, unit)
 }
