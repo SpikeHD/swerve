@@ -22,9 +22,9 @@ pub fn log(s: impl AsRef<str> + Display, kind: Option<LogKind>) {
 
   let status = match kind {
     Some(LogKind::Info) => "INFO".blue(),
-    Some(LogKind::Success) => "SUCCESS".green(),
+    Some(LogKind::Success) => "DONE".green(),
     Some(LogKind::Warn) => "WARN".yellow(),
-    Some(LogKind::Error) => "ERROR".red(),
+    Some(LogKind::Error) => "FAIL".red(),
     None => "INFO".blue(),
   };
 
