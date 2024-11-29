@@ -21,7 +21,8 @@
 * Serve directories, webserver directory index style
 * Test and serve static sites of all kinds (regular HTML, built React, etc.)
 * Serve static sites in Docker
-* Hot reloading
+* Optional hot reloading
+* Optional basic auth
 * Glob patterns for including/excluding files
 
 # Table of Contents
@@ -98,6 +99,12 @@ swerve path/to/directory
 
 # Specify port
 swerve -p 8080
+
+# Enable hot reloading
+swerve --hot-reload 8087
+
+# Set basic auth credentials
+swerve --basic-auth username:password
 
 # Include files using a glob pattern
 swerve -i *.html -i *.css -i *.js

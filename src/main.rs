@@ -78,10 +78,10 @@ struct Args {
   threads: usize,
 
   #[cfg(feature = "hotreload")]
-  #[options(help = "Enable and set the hot-reloading port")]
+  #[options(help = "Enable and set the hot-reloading port", meta = "PORT")]
   hot_reload: Option<u16>,
 
-  #[options(help = "Enable and set basic auth credentials")]
+  #[options(help = "Enable and set basic auth credentials", meta = "USERNAME:PASSWORD")]
   basic_auth: Option<String>,
 }
 
