@@ -18,6 +18,7 @@ opt-level = "z"
 reqwest = { version = "0.12", default-features = false, features = ["blocking"] }
 
 [dependencies]
+base64 = "0.22.1"
 chrono = { version = "0.4", default-features = false, features = ["clock"]}
 colored = "2.1"
 flume = { version = "0.11", optional = true }

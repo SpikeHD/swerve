@@ -21,6 +21,8 @@
 * Serve directories, webserver directory index style
 * Test and serve static sites of all kinds (regular HTML, built React, etc.)
 * Serve static sites in Docker
+* Hot reloading
+* Glob patterns for including/excluding files
 
 # Table of Contents
 * [Installation](#installation)
@@ -155,10 +157,10 @@ The binary will be in `target/release/`.
 
 * [x] Include/exclude files/folders/globs
 * [x] Embedded HTML/CSS for displaying directories
-* [ ] Optional hot-reloading
+* [x] Optional hot-reloading
 * [x] Multithreading
-* [ ] More details in directory listings (modified date, size, etc.)
-* [ ] Basic auth
+* [x] More details in directory listings (modified date, size, etc.)
+* [x] Basic auth
 
 # Contributions
 

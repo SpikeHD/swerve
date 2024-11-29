@@ -1,3 +1,4 @@
+use base64::Engine;
 use colored::control;
 use gumdrop::Options;
 #[cfg(feature = "hotreload")]
@@ -13,7 +14,7 @@ use std::{
   sync::Arc,
 };
 use threadpool::ThreadPool;
-use tiny_http::{Header, Response, Server};
+use tiny_http::{Header, HeaderField, Response, Server};
 
 use crate::log::set_silent;
 
@@ -79,6 +80,9 @@ struct Args {
   #[cfg(feature = "hotreload")]
   #[options(help = "Enable and set the hot-reloading port")]
   hot_reload: Option<u16>,
+
+  #[options(help = "Enable and set basic auth credentials")]
+  basic_auth: Option<String>,
 }
 
 pub fn main() {
@@ -87,6 +91,7 @@ pub fn main() {
 
   let opts = Args::parse_args_default_or_exit();
   let port = opts.port;
+  let (username, password) = split_basic_auth(&opts.basic_auth.unwrap_or_default()).unwrap_or_default();
   let server = Server::http(format!("{}:{}", opts.bind, port)).unwrap();
   // This is an Arc because it's used in the threadpool
   let local_path = Arc::new(opts.path.unwrap_or(std::path::PathBuf::from(".")));
@@ -166,6 +171,8 @@ pub fn main() {
 
   for request in server.incoming_requests() {
     let local_path = local_path.clone();
+    let username = username.clone();
+    let password = password.clone();
 
     pool.execute(move || {
       let start = std::time::Instant::now();
@@ -174,6 +181,36 @@ pub fn main() {
       let mut path = local_path.join(PathBuf::from(path));
 
       log!("Incoming request for {:?}", path);
+
+      // Basic auth
+      if username != "" && password != "" {
+        let b64 = base64::engine::general_purpose::STANDARD;
+        let auth_field = HeaderField::from_str("Authorization").unwrap();
+
+        if !request.headers().iter().any(|header| header.field == auth_field) {
+          warn!("No Authorization header, rejecting request");
+          // Respond with request to authorize
+          let mut res = Response::empty(401);
+          res.add_header(Header::from_str("WWW-Authenticate: Basic realm=\"Protected\"").unwrap());
+          request.respond(res).expect("Failed to respond with 401");
+          return;
+        }
+
+        let auth = request.headers().iter().find(|header| header.field == auth_field).unwrap().value.as_str();
+        let auth = auth.strip_prefix("Basic ").unwrap_or(auth);
+        let auth = b64.decode(auth).unwrap_or_default();
+        let auth = String::from_utf8(auth).unwrap_or_default();
+        let (attempt_username, attempt_password) = split_basic_auth(&auth).unwrap_or_default();
+
+        if attempt_username != username || attempt_password != password {
+          warn!("Invalid Authorization header, rejecting request");
+          // Respond with request to authorize
+          let mut res = Response::empty(401);
+          res.add_header(Header::from_str("WWW-Authenticate: Basic realm=\"Protected\"").unwrap());
+          request.respond(res).expect("Failed to respond with 401");
+          return;
+        }
+      }
 
       // If the path is a dir but the URL does NOT end with a slash, redirect to version with slash
       if path.is_dir() && !request.url().ends_with('/') {
@@ -265,4 +302,12 @@ pub fn main() {
       log!("Request took {:?}", start.elapsed());
     });
   }
+}
+
+fn split_basic_auth(auth: &str) -> Option<(String, String)> {
+  let mut parts = auth.split(':');
+  let username = parts.next()?;
+  let password = parts.next()?;
+
+  Some((username.to_string(), password.to_string()))
 }
