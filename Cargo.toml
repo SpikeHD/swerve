@@ -1,6 +1,6 @@
 [package]
 name = "swerve"
-version = "1.6.0"
+version = "1.7.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -18,7 +18,7 @@ opt-level = "z"
 reqwest = { version = "0.12", default-features = false, features = ["blocking"] }
 
 [dependencies]
-base64 = "0.22.1"
+base64 = "0.22"
 chrono = { version = "0.4", default-features = false, features = ["clock"]}
 colored = "2.1"
 flume = { version = "0.11", optional = true }
@@ -27,13 +27,13 @@ gumdrop = "0.8"
 local-ip-address = "0.6"
 mime_guess = { version = "2.0", no-default-features = true }
 notify = { version = "7.0", optional = true }
-threadpool = "1.8.1"
+threadpool = "1.8"
 tiny_http = "0.12"
-tungstenite = { version = "0.24.0", optional = true }
+tungstenite = { version = "0.24", optional = true }
 
 # Non-windows dependencies
 [target.'cfg(not(windows))'.dependencies]
-signal-hook = "0.3.17"
+signal-hook = "0.3"
 
 [features]
 default = ["hotreload"]
