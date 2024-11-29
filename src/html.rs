@@ -117,7 +117,7 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
       let href = format!("<a href=\"{}/{}\">{}/</a>", path_as_str, name, name);
       dirs.push_str(&format!("<li>{}</li>", href));
     } else {
-      let href = format!("<a href=\"{}/{}\">{}</a> <span>{}</span> <span>{}</span>", path_as_str, name, name, last_modified.format("%Y-%m-%d %H:%M:%S").to_string(), bytes_to_human(size));
+      let href = format!("<a href=\"{}/{}\">{}</a> <span>{}</span> <span>{}</span>", path_as_str, name, name, last_modified.format("%Y-%m-%d %H:%M:%S"), bytes_to_human(size));
       files.push_str(&format!("<li>{}</li>", href));
     }
   }

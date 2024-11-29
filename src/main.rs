@@ -1,5 +1,7 @@
 use colored::control;
 use gumdrop::Options;
+#[cfg(feature = "hotreload")]
+use hotreload::get_hotreload_js;
 use mime_guess::from_path;
 #[cfg(not(windows))]
 use signal_hook::consts::{SIGINT, SIGTERM};
@@ -16,6 +18,8 @@ use tiny_http::{Header, Response, Server};
 use crate::log::set_silent;
 
 mod globs;
+#[cfg(feature = "hotreload")]
+mod hotreload;
 mod html;
 mod log;
 mod open;
@@ -71,13 +75,13 @@ struct Args {
 
   #[options(help = "Amount of threads to spawn for serving files", default = "1")]
   threads: usize,
+
+  #[cfg(feature = "hotreload")]
+  #[options(help = "Enable and set the hot-reloading port")]
+  hot_reload: Option<u16>,
 }
 
 pub fn main() {
-  std::panic::set_hook(Box::new(|e| {
-    error!("Panic: {:?}", e);
-  }));
-
   #[cfg(target_os = "windows")]
   control::set_virtual_terminal(true).unwrap_or_default();
 
@@ -149,6 +153,15 @@ pub fn main() {
     }
   });
 
+  #[cfg(feature = "hotreload")]
+  if let Some(port) = opts.hot_reload {
+    let (event_tx, event_rx) = flume::unbounded::<Vec<PathBuf>>();
+    let local_path = local_path.clone();
+
+    std::thread::spawn(move || hotreload::watch(&local_path, event_tx));
+    std::thread::spawn(move || hotreload::create_websocket(port, event_rx));
+  }
+
   let pool = ThreadPool::new(opts.threads);
 
   for request in server.incoming_requests() {
@@ -209,7 +222,20 @@ pub fn main() {
         request.respond(res)
       } else {
         match std::fs::read(&path) {
-          Ok(content) => {
+          #[clippy::allow(unused_mut)]
+          Ok(mut content) => {
+            #[cfg(feature = "hotreload")]
+            if let Some(port) = opts.hot_reload {
+              let path_str = path.to_str().unwrap_or_default();
+
+              if path_str.ends_with(".html") || path_str.ends_with(".htm") {
+                let html = format!("<script>{}</script>", get_hotreload_js(port));
+
+                // Append to the end of content
+                content.append(&mut html.as_bytes().to_vec());
+              }
+            }
+
             let mime = from_path(&path).first_or_text_plain();
             let mut res = Response::from_data(content.clone());
 
