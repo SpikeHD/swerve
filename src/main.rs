@@ -1,4 +1,5 @@
 use base64::Engine;
+#[cfg(target_os = "windows")]
 use colored::control;
 use gumdrop::Options;
 #[cfg(feature = "hotreload")]
@@ -287,7 +288,10 @@ pub fn main() {
 
             request.respond(res)
           }
-          Err(_) => request.respond(Response::empty(404)),
+          Err(_) => {
+            warn!("Not found: {:?}", path);
+            request.respond(Response::empty(404))
+          },
         }
       };
 

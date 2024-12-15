@@ -102,8 +102,8 @@ swerve path/to/directory
 # Specify port
 swerve -p 8080
 
-# Enable hot reloading
-swerve --hot-reload 8087
+# Enable hot reloading. This creates a websocket on port 8087.
+swerve -H 8087
 
 # Set basic auth credentials
 swerve --basic-auth username:password

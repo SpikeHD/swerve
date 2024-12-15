@@ -5,21 +5,21 @@ use tungstenite::{accept_hdr, Message};
 use crate::{error, log};
 
 static HOTRELOAD_JS: &str = r#"
-const ws = new WebSocket("ws://127.0.0.1:__PORT__");
+const ws = new WebSocket("ws://127.0.0.1:__PORT__")
 ws.onmessage = function(event) {
   if (event.data === "reload") {
-    location.reload();
+    location.reload()
   }
 };
 
-ws.onopen = function(event) {
-  console.log("Hot-reload connected");
-};
+ws.onopen = (event) => {
+  console.log("Hot-reload connected")
+}
 
 // On unload send disconnect message
-window.addEventListener("beforeunload", function(event) {
-  ws.close();
-});
+window.beforeunload = () => {
+  ws.close()
+}
 "#;
 
 pub fn get_hotreload_js(port: u16) -> String {

@@ -26,16 +26,16 @@ fn create_process(args: &[&str]) -> std::process::Child {
 
 fn main() {
   let request_count = 1000;
-  let mut serve_process = create_process(&["npx", "serve"]);
+  let mut serve_process = create_process(&["python3", "-m", "http.server", "3000"]);
 
-  println!("Waiting for npx serve to start...");
+  println!("Waiting for python http server to start...");
   thread::sleep(Duration::from_secs(2));
 
   // Test
-  println!("Testing npx serve...");
+  println!("Testing python http server...");
   let serve_duration = benchmark_request("http://127.0.0.1:3000/Cargo.toml", request_count);
   println!(
-    "npx serve response time ({} requests): {:?}",
+    "python http server response time ({} requests): {:?}",
     request_count, serve_duration
   );
 
@@ -62,12 +62,12 @@ fn main() {
   // Compare the results
   if serve_duration > swerve_duration {
     println!(
-      "npx serve is {:.2}x slower than swerve",
+      "python http is {:.2}x slower than swerve",
       serve_micros_flt / swerve_micros_flt
     );
   } else {
     println!(
-      "swerve is {:.2}x slower than npx serve",
+      "swerve is {:.2}x slower than python http",
       serve_micros_flt / swerve_micros_flt
     );
   }
