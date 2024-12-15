@@ -78,7 +78,7 @@ pub fn create_websocket(port: u16, event_rx: flume::Receiver<Vec<PathBuf>>) -> R
           let msg = rx.try_recv();
 
           if msg.is_ok() {
-            ws_stream.send(Message::Text("reload".to_string())).unwrap_or_else(|e| error!("Stream write error: {:?}", e));
+            ws_stream.send(Message::Text("reload".to_string().into())).unwrap_or_else(|e| error!("Stream write error: {:?}", e));
           }
 
           // Also try to read from the stream
