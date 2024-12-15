@@ -81,7 +81,10 @@ struct Args {
   #[options(help = "Enable and set the hot-reloading port", meta = "PORT")]
   hot_reload: Option<u16>,
 
-  #[options(help = "Enable and set basic auth credentials", meta = "USERNAME:PASSWORD")]
+  #[options(
+    help = "Enable and set basic auth credentials",
+    meta = "USERNAME:PASSWORD"
+  )]
   basic_auth: Option<String>,
 }
 
@@ -90,8 +93,19 @@ pub fn main() {
   control::set_virtual_terminal(true).unwrap_or_default();
 
   let opts = Args::parse_args_default_or_exit();
+
+  if opts.version {
+    println!(
+      "swerve {}-{}",
+      VERSION.unwrap_or("unknown"),
+      HASH.unwrap_or("dev")
+    );
+    return;
+  }
+
   let port = opts.port;
-  let (username, password) = split_basic_auth(&opts.basic_auth.unwrap_or_default()).unwrap_or_default();
+  let (username, password) =
+    split_basic_auth(&opts.basic_auth.unwrap_or_default()).unwrap_or_default();
   let server = Server::http(format!("{}:{}", opts.bind, port)).unwrap();
   // This is an Arc because it's used in the threadpool
   let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
@@ -102,15 +116,6 @@ pub fn main() {
   } else {
     opts.bind.clone()
   };
-
-  if opts.version {
-    println!(
-      "swerve {}-{}",
-      VERSION.unwrap_or("unknown"),
-      HASH.unwrap_or("dev")
-    );
-    return;
-  }
 
   set_silent(opts.quiet);
 
@@ -183,11 +188,15 @@ pub fn main() {
       log!("Incoming request for {:?}", path);
 
       // Basic auth
-      if username != "" && password != "" {
+      if !username.is_empty() && !password.is_empty() {
         let b64 = base64::engine::general_purpose::STANDARD;
         let auth_field = HeaderField::from_str("Authorization").unwrap();
 
-        if !request.headers().iter().any(|header| header.field == auth_field) {
+        if !request
+          .headers()
+          .iter()
+          .any(|header| header.field == auth_field)
+        {
           warn!("No Authorization header, rejecting request");
           // Respond with request to authorize
           let mut res = Response::empty(401);
@@ -196,7 +205,13 @@ pub fn main() {
           return;
         }
 
-        let auth = request.headers().iter().find(|header| header.field == auth_field).unwrap().value.as_str();
+        let auth = request
+          .headers()
+          .iter()
+          .find(|header| header.field == auth_field)
+          .unwrap()
+          .value
+          .as_str();
         let auth = auth.strip_prefix("Basic ").unwrap_or(auth);
         let auth = b64.decode(auth).unwrap_or_default();
         let auth = String::from_utf8(auth).unwrap_or_default();
@@ -259,7 +274,7 @@ pub fn main() {
         request.respond(res)
       } else {
         match std::fs::read(&path) {
-          #[clippy::allow(unused_mut)]
+          #[allow(unused_mut)]
           Ok(mut content) => {
             #[cfg(feature = "hotreload")]
             if let Some(port) = opts.hot_reload {
@@ -290,7 +305,7 @@ pub fn main() {
           Err(_) => {
             warn!("Not found: {:?}", path);
             request.respond(Response::empty(404))
-          },
+          }
         }
       };
 

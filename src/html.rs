@@ -2,7 +2,7 @@ use std::path::Path;
 
 use chrono::{DateTime, Utc};
 
-use crate::log;
+use crate::error;
 
 static HTML: &str = r#"
 <!DOCTYPE html>
@@ -97,7 +97,7 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
     let entry = match entry {
       Ok(e) => e,
       Err(_) => {
-        log!("Failed to read entry: {:?}", entry);
+        error!("Failed to read entry: {:?}", entry);
         continue;
       }
     };
@@ -117,7 +117,14 @@ pub fn get_directory_html(root: &Path, path: &str) -> String {
       let href = format!("<a href=\"{}/{}\">{}/</a>", path_as_str, name, name);
       dirs.push_str(&format!("<li>{}</li>", href));
     } else {
-      let href = format!("<a href=\"{}/{}\">{}</a> <span>{}</span> <span>{}</span>", path_as_str, name, name, last_modified.format("%Y-%m-%d %H:%M:%S"), bytes_to_human(size));
+      let href = format!(
+        "<a href=\"{}/{}\">{}</a> <span>{}</span> <span>{}</span>",
+        path_as_str,
+        name,
+        name,
+        last_modified.format("%Y-%m-%d %H:%M:%S"),
+        bytes_to_human(size)
+      );
       files.push_str(&format!("<li>{}</li>", href));
     }
   }
