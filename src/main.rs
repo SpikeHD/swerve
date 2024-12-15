@@ -12,7 +12,6 @@ use std::{
   net::{IpAddr, Ipv4Addr},
   path::PathBuf,
   str::FromStr,
-  sync::Arc,
 };
 use threadpool::ThreadPool;
 use tiny_http::{Header, HeaderField, Response, Server};
@@ -95,7 +94,7 @@ pub fn main() {
   let (username, password) = split_basic_auth(&opts.basic_auth.unwrap_or_default()).unwrap_or_default();
   let server = Server::http(format!("{}:{}", opts.bind, port)).unwrap();
   // This is an Arc because it's used in the threadpool
-  let local_path = Arc::new(opts.path.unwrap_or(std::path::PathBuf::from(".")));
+  let local_path = opts.path.unwrap_or(std::path::PathBuf::from("."));
   let addr = if opts.bind == "0.0.0.0" {
     local_ip_address::local_ip()
       .unwrap_or(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)))
@@ -116,7 +115,7 @@ pub fn main() {
   set_silent(opts.quiet);
 
   // If the path is the current dir, warn just in case
-  if local_path == Arc::new(PathBuf::from(".")) {
+  if local_path == PathBuf::from(".") {
     warn!("Serving current directory");
   }
 
